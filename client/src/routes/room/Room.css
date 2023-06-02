@@ -1,0 +1,62 @@
+.room {
+    display: grid;
+    gap: 10px;
+}
+
+.roomSidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.roomEditorWrapper {
+}
+
+.roomSidebarCopyBtn {
+    font-weight: bold;
+    padding: 8px 15px;
+    background-color: #ffdd00;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+
+}
+
+.roomSidebarBtn {
+    font-weight: bold;
+    padding: 10px 15px;
+    background-color: white;
+    border: 2px solid rgb(237, 234, 234);
+    outline: none;
+    border-radius: 5px;
+}
+
+.roomSidebarUsersWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.roomSidebarUsers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.roomSidebarUsersEach {
+    display: grid;
+    justify-items: center;
+}
+
+.roomSidebarUsersEachAvatar {
+    background-color: maroon;
+    color: white;
+    border-radius: 5px;
+    width: 20px;
+    height: 20px;
+    font-size: small;
+
+    display: grid;
+    place-items: center;
+}
