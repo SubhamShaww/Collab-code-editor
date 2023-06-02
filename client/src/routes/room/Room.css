@@ -1,6 +1,9 @@
 .room {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 10px;
+    min-height: 100vh;
+    padding: 10px 10px 20px;
 }
 
 .roomSidebar {
@@ -9,7 +12,8 @@
     gap: 10px;
 }
 
-.roomEditorWrapper {
+.roomCodeEditor {
+    flex: 1;
 }
 
 .roomSidebarCopyBtn {
@@ -50,13 +54,36 @@
 }
 
 .roomSidebarUsersEachAvatar {
-    background-color: maroon;
     color: white;
     border-radius: 5px;
-    width: 20px;
-    height: 20px;
+    min-width: 30px;
+    min-height: 30px;
+    padding: 5px;
     font-size: small;
 
     display: grid;
     place-items: center;
+}
+
+.roomSidebarUsersEachName {
+    font-weight: bold;
+    font-size: small;
+}
+
+@media screen and (min-width: 991px) {
+    .room {
+        flex-direction: row;
+    }
+
+    .roomSidebar {
+        flex: 0.25;
+    }
+
+    .roomSidebar > *:nth-child(2) {
+        margin-top: auto;
+    }
+
+    .roomCodeEditor {
+        flex: 0.75;
+    }
 }
