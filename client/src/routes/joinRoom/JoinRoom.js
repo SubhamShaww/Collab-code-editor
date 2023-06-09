@@ -1,27 +1,27 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { v4 as uuidv4 } from 'uuid';
-import toast, { Toaster } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 import './JoinRoom.css'
 
-export default function JoinRoom() {
+export default function JoinRoom({ socket }) {
     const navigate = useNavigate()
     const [roomId, setRoomId] = useState(() => "")
     const [username, setUsername] = useState(() => "")
 
     function handleRoomSubmit(e) {
         e.preventDefault()
-        navigate(`/room/${roomId}`)
+        const resp = socket.emit("when a user joins", { roomId, username })
+        resp.connected && navigate(`/room/${roomId}`)
     }
 
     function createRoomId(e) {
         try {
             setRoomId(uuidv4())
             toast.success("Room created")
-        } catch(exp) {
+        } catch (exp) {
             console.error(exp)
         }
-
     }
 
     return (
@@ -38,8 +38,10 @@ export default function JoinRoom() {
                         required
                         onChange={(e) => { setRoomId(e.target.value) }}
                         value={roomId}
+                        autoSave="off"
+                        autoComplete="off"
                     />
-                    <label htmlFor="roomIdInput" className="joinBoxWarning">{roomId ? '': "Room ID required"}</label>
+                    <label htmlFor="roomIdInput" className="joinBoxWarning">{roomId ? '' : "Room ID required"}</label>
                 </div>
 
                 <div className="joinBoxInputWrapper">
@@ -51,8 +53,10 @@ export default function JoinRoom() {
                         required
                         value={username}
                         onChange={e => { setUsername(e.target.value) }}
+                        autoSave="off"
+                        autoComplete="off"
                     />
-                    <label htmlFor="usernameInput" className="joinBoxWarning">{username ? '': "username required"}</label>
+                    <label htmlFor="usernameInput" className="joinBoxWarning">{username ? '' : "username required"}</label>
                 </div>
 
                 <button className="joinBoxBtn" type="submit">Join</button>

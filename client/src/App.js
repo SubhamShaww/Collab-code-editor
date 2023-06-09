@@ -2,17 +2,20 @@ import {
     createBrowserRouter,
     RouterProvider,
 } from "react-router-dom";
+import { io } from "socket.io-client";
 import JoinRoom from './routes/joinRoom/JoinRoom';
 import Room from "./routes/room/Room";
+
+const socket = io.connect("http://localhost:5000")
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <JoinRoom />,
+        element: <JoinRoom socket={socket} />,
     },
     {
         path: "/room/:roomId",
-        element: <Room />
+        element: <Room socket={socket} />
     }
 ]);
 

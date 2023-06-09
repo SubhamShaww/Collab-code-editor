@@ -23,6 +23,7 @@
     outline: none;
     border-radius: 25px;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .joinBoxInput {

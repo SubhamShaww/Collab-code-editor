@@ -23,7 +23,7 @@
     border: none;
     outline: none;
     border-radius: 5px;
-
+    cursor: pointer;
 }
 
 .roomSidebarBtn {
@@ -33,6 +33,7 @@
     border: 2px solid rgb(237, 234, 234);
     outline: none;
     border-radius: 5px;
+    cursor: pointer;
 }
 
 .roomSidebarUsersWrapper {
