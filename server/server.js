@@ -40,6 +40,11 @@ io.on('connection', function (socket) {
     if (roomId in roomID_to_Code_Map) {
       io.to(socket.id).emit("on code change", { code: roomID_to_Code_Map[roomId] })
     }
+
+    // alerting other users in room that new user joined
+    socket.in(roomId).emit("new member joined", {
+      username
+    })
   })
 
   // for other users in room to view the changes
@@ -51,13 +56,15 @@ io.on('connection', function (socket) {
   // for user editing the code to reflect on his/her screen
   socket.on("syncing the code", ({ socketId, code }) => {
     io.to(socketId).emit("on code change", { code })
-    // socketID_to_Users_Map[socketId]['code'] = code
   })
 
-  socket.on("leave room", ({ roomId }) => {
+  socket.on("leave room", ({ roomId }) => { 
+    socket.leave(roomId)
+    socket.in(roomId).emit("member left", {username: socketID_to_Users_Map[socket.id]})
+    
+    // update the user list
     delete socketID_to_Users_Map[socket.id]
     socket.in(roomId).emit("updating client list", { userslist: Object.values(socketID_to_Users_Map) })
-    socket.leave(roomId)
   })
 
   //Whenever someone disconnects this piece of code executed

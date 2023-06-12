@@ -42,6 +42,14 @@ export default function Room({ socket }) {
     socket.on("on code change", ({ code }) => {
       setFetchedCode(code)
     })
+
+    socket.on("new member joined", ({username}) => {
+      toast(`${username} joined`)
+    })
+
+    socket.on("member left", ({ username }) => {
+      toast(`${username} left`)
+    })
   }, [socket])
 
   return (
