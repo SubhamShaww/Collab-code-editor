@@ -56,7 +56,7 @@ export default function Room({ socket }) {
   }
 
   useEffect(() => {
-    location.state && location.state.username ? socket.emit("when a user joins", { roomId, username: location.state.username }) : navigate("/", {replace: true})
+    location.state && location.state.username ? socket.emit("when a user joins", { roomId, username: location.state.username }) : navigate("/", { replace: true })
 
     socket.on("updating client list", ({ userslist }) => {
       setFetchedUsers(userslist)
@@ -77,7 +77,7 @@ export default function Room({ socket }) {
     socket.on("member left", ({ username }) => {
       toast(`${username} left`)
     })
-  }, [socket])
+  }, [socket, location.state, roomId, navigate])
 
   return location.state && location.state.username ? (
     <div className="room">

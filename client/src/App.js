@@ -11,7 +11,7 @@ const socket = io.connect("http://localhost:5000")
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <JoinRoom socket={socket} />,
+        element: <JoinRoom />,
     },
     {
         path: "/room/:roomId",

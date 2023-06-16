@@ -4,15 +4,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { Toaster, toast } from 'react-hot-toast';
 import './JoinRoom.css'
 
-export default function JoinRoom({ socket }) {
+export default function JoinRoom() {
     const navigate = useNavigate()
     const [roomId, setRoomId] = useState(() => "")
     const [username, setUsername] = useState(() => "")
 
     function handleRoomSubmit(e) {
         e.preventDefault()
-        const resp = socket.emit("when a user joins", { roomId, username })
-        resp.connected && navigate(`/room/${roomId}`, {state: {username}})
+        roomId && username && navigate(`/room/${roomId}`, { state: { username } })
     }
 
     function createRoomId(e) {
