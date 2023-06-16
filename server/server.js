@@ -38,7 +38,8 @@ io.on('connection', function (socket) {
 
     // send the latest code changes to this user when joined to existing room
     if (roomId in roomID_to_Code_Map) {
-      io.to(socket.id).emit("on code change", { code: roomID_to_Code_Map[roomId] })
+      io.to(socket.id).emit("on language change", { languageUsed: roomID_to_Code_Map[roomId].languageUsed })
+      io.to(socket.id).emit("on code change", { code: roomID_to_Code_Map[roomId].code })
     }
 
     // alerting other users in room that new user joined
@@ -48,9 +49,28 @@ io.on('connection', function (socket) {
   })
 
   // for other users in room to view the changes
+  socket.on("on language change", ({ roomId, languageUsed }) => {
+    socket.in(roomId).emit("on language change", { languageUsed })
+    if (roomId in roomID_to_Code_Map) {
+      roomID_to_Code_Map[roomId]['languageUsed'] = languageUsed
+    } else {
+      roomID_to_Code_Map[roomId] = { languageUsed }
+    }
+  })
+
+  // for user editing the code to reflect on his/her screen
+  socket.on("syncing the language", ({ socketId, languageUsed }) => {
+    io.to(socketId).emit("on language change", { languageUsed })
+  })
+
+  // for other users in room to view the changes
   socket.on("on code change", ({ roomId, code }) => {
     socket.in(roomId).emit("on code change", { code })
-    roomID_to_Code_Map[roomId] = code
+    if (roomId in roomID_to_Code_Map) {
+      roomID_to_Code_Map[roomId]['code'] = code
+    } else {
+      roomID_to_Code_Map[roomId] = { code }
+    }
   })
 
   // for user editing the code to reflect on his/her screen
@@ -58,10 +78,10 @@ io.on('connection', function (socket) {
     io.to(socketId).emit("on code change", { code })
   })
 
-  socket.on("leave room", ({ roomId }) => { 
+  socket.on("leave room", ({ roomId }) => {
     socket.leave(roomId)
-    socket.in(roomId).emit("member left", {username: socketID_to_Users_Map[socket.id]})
-    
+    socket.in(roomId).emit("member left", { username: socketID_to_Users_Map[socket.id] })
+
     // update the user list
     delete socketID_to_Users_Map[socket.id]
     socket.in(roomId).emit("updating client list", { userslist: Object.values(socketID_to_Users_Map) })

@@ -17,13 +17,18 @@
 }
 
 .joinBoxBtn {
-    padding: 10px 15px;
+    padding: 8px 15px;
+    color: white;
     background-color: #ffdd00;
-    border: none;
+    border: 2px solid #ffdd00;
     outline: none;
     border-radius: 25px;
     font-weight: bold;
     cursor: pointer;
+}
+.joinBoxBtn:hover {
+    color: #ffdd00;
+    background-color: white;
 }
 
 .joinBoxInput {

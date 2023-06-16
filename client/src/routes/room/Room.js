@@ -6,19 +6,38 @@ import { generateColor } from "../../utils";
 import './Room.css'
 
 import "ace-builds/src-noconflict/mode-javascript";
+import "ace-builds/src-noconflict/mode-typescript";
+import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/mode-yaml";
+import "ace-builds/src-noconflict/mode-golang";
+import "ace-builds/src-noconflict/mode-c_cpp";
+import "ace-builds/src-noconflict/mode-html";
+import "ace-builds/src-noconflict/mode-css";
+
+import "ace-builds/src-noconflict/mode-snippets";
 import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/ext-language_tools";
+import "ace-builds/src-noconflict/ext-searchbox";
 
 export default function Room({ socket }) {
+  const languagesAvailable = ["javascript", "java", "c_cpp", "python", "typescript", "golang", "yaml", "html"]
   const navigate = useNavigate()
   const roomId = window.location.pathname.slice(6)
   const [fetchedUsers, setFetchedUsers] = useState(() => [])
   const [fetchedCode, setFetchedCode] = useState(() => "")
+  const [language, setLanguage] = useState(() => "javascript")
 
   function onChange(newValue) {
     socket.emit("syncing the code", { socketId: socket.id, code: newValue })
 
     socket.emit("on code change", { roomId, code: newValue })
+  }
+
+  function handleLanguageChange(e) {
+    socket.emit("syncing the language", { socketId: socket.id, languageUsed: e.target.value })
+
+    socket.emit("on language change", { roomId, languageUsed: e.target.value })
   }
 
   function handleLeave(roomId) {
@@ -39,11 +58,15 @@ export default function Room({ socket }) {
       setFetchedUsers(userslist)
     })
 
+    socket.on("on language change", ({ languageUsed }) => {
+      setLanguage(languageUsed)
+    })
+
     socket.on("on code change", ({ code }) => {
       setFetchedCode(code)
     })
 
-    socket.on("new member joined", ({username}) => {
+    socket.on("new member joined", ({ username }) => {
       toast(`${username} joined`)
     })
 
@@ -56,6 +79,15 @@ export default function Room({ socket }) {
     <div className="room">
       <div className="roomSidebar">
         <div className="roomSidebarUsersWrapper">
+          <div className="languageFieldWrapper">
+            <select className="languageField" name="language" id="language" value={language} onChange={handleLanguageChange}>
+              {languagesAvailable.map(eachLanguage => (
+                <option value={eachLanguage}>{eachLanguage}</option>
+              ))}
+            </select>
+          </div>
+
+
           <p>Connected Users:</p>
           <div className="roomSidebarUsers">
             {fetchedUsers.map((each) => (
@@ -77,23 +109,23 @@ export default function Room({ socket }) {
       <AceEditor
         placeholder="Write your code here."
         className="roomCodeEditor"
-        mode="javascript"
+        mode={language}
         theme="monokai"
         name="collabEditor"
         width="auto"
         height="auto"
         value={fetchedCode}
         onChange={onChange}
-        fontSize={14}
+        fontSize={15}
         showPrintMargin={true}
         showGutter={true}
         highlightActiveLine={true}
-        setOptions={{
-          enableBasicAutocompletion: true,
-          enableLiveAutocompletion: true,
-          enableSnippets: true,
-          showLineNumbers: true,
-          tabSize: 2,
+        enableLiveAutocompletion={true}
+        enableBasicAutocompletion={true}
+        enableSnippets={true}
+        wrapEnabled={true}
+        editorProps={{
+          $blockScrolling: true
         }}
       />
       <Toaster />

@@ -12,6 +12,19 @@
     gap: 10px;
 }
 
+.languageFieldWrapper {
+    padding: 2px 6px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+}
+
+.languageField {
+    padding: 6px 10px;
+    background-color: #f0f0f0;
+    border: none;
+    outline: none;
+}
+
 .roomCodeEditor {
     flex: 1;
 }
@@ -19,21 +32,30 @@
 .roomSidebarCopyBtn {
     font-weight: bold;
     padding: 8px 15px;
+    color: white;
     background-color: #ffdd00;
-    border: none;
+    border: 2px solid #ffdd00;
     outline: none;
     border-radius: 5px;
     cursor: pointer;
+}
+.roomSidebarCopyBtn:hover {
+    color: #ffdd00;
+    background-color: white;
 }
 
 .roomSidebarBtn {
     font-weight: bold;
     padding: 10px 15px;
     background-color: white;
-    border: 2px solid rgb(237, 234, 234);
+    border: 2px solid black;
     outline: none;
     border-radius: 5px;
     cursor: pointer;
+}
+.roomSidebarBtn:hover {
+    color: white;
+    background-color: black;
 }
 
 .roomSidebarUsersWrapper {
