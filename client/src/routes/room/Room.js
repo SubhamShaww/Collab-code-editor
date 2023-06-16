@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AceEditor from "react-ace";
 import { Toaster, toast } from 'react-hot-toast';
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { generateColor } from "../../utils";
 import './Room.css'
 
@@ -21,12 +21,14 @@ import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/ext-searchbox";
 
 export default function Room({ socket }) {
-  const languagesAvailable = ["javascript", "java", "c_cpp", "python", "typescript", "golang", "yaml", "html"]
+  const location = useLocation()
   const navigate = useNavigate()
-  const roomId = window.location.pathname.slice(6)
+  const { roomId } = useParams()
   const [fetchedUsers, setFetchedUsers] = useState(() => [])
   const [fetchedCode, setFetchedCode] = useState(() => "")
   const [language, setLanguage] = useState(() => "javascript")
+
+  const languagesAvailable = ["javascript", "java", "c_cpp", "python", "typescript", "golang", "yaml", "html"]
 
   function onChange(newValue) {
     socket.emit("syncing the code", { socketId: socket.id, code: newValue })
@@ -54,6 +56,8 @@ export default function Room({ socket }) {
   }
 
   useEffect(() => {
+    location.state && location.state.username ? socket.emit("when a user joins", { roomId, username: location.state.username }) : navigate("/", {replace: true})
+
     socket.on("updating client list", ({ userslist }) => {
       setFetchedUsers(userslist)
     })
@@ -75,14 +79,14 @@ export default function Room({ socket }) {
     })
   }, [socket])
 
-  return (
+  return location.state && location.state.username ? (
     <div className="room">
       <div className="roomSidebar">
         <div className="roomSidebarUsersWrapper">
           <div className="languageFieldWrapper">
             <select className="languageField" name="language" id="language" value={language} onChange={handleLanguageChange}>
               {languagesAvailable.map(eachLanguage => (
-                <option value={eachLanguage}>{eachLanguage}</option>
+                <option key={eachLanguage} value={eachLanguage}>{eachLanguage}</option>
               ))}
             </select>
           </div>
@@ -129,6 +133,10 @@ export default function Room({ socket }) {
         }}
       />
       <Toaster />
+    </div>
+  ) : (
+    <div className="room">
+      <h2>No username provided. Please use the form to join a room.</h2>
     </div>
   )
 }

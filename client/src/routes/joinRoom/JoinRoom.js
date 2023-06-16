@@ -12,7 +12,7 @@ export default function JoinRoom({ socket }) {
     function handleRoomSubmit(e) {
         e.preventDefault()
         const resp = socket.emit("when a user joins", { roomId, username })
-        resp.connected && navigate(`/room/${roomId}`)
+        resp.connected && navigate(`/room/${roomId}`, {state: {username}})
     }
 
     function createRoomId(e) {
