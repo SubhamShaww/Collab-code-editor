@@ -44,6 +44,7 @@ export default function Room({ socket }) {
 
   function handleLeave(roomId) {
     socket.emit("leave room", { roomId })
+    navigate('/', { replace: true })
   }
 
   function copyToClipboard(text) {
@@ -106,7 +107,6 @@ export default function Room({ socket }) {
         <button className="roomSidebarCopyBtn" onClick={() => { copyToClipboard(roomId) }}>Copy Room id</button>
         <button className="roomSidebarBtn" onClick={() => {
           handleLeave(roomId)
-          navigate('/')
         }}>Leave</button>
       </div>
 

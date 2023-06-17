@@ -21,20 +21,43 @@ app.get('/', function (req, res) {
 const socketID_to_Users_Map = {}
 const roomID_to_Code_Map = {}
 
+async function getUsersinRoom(roomId, io) {
+  const socketList = await io.in(roomId).allSockets()
+  const userslist = []
+  socketList.forEach((each => {
+    (each in socketID_to_Users_Map) && userslist.push(socketID_to_Users_Map[each])
+  }))
+
+  return userslist
+}
+
+async function updateUserslistAndCodeMap(io, socket, roomId) {
+  socket.in(roomId).emit("member left", { username: socketID_to_Users_Map[socket.id] })
+
+  // update the user list
+  delete socketID_to_Users_Map[socket.id]
+  const userslist = await getUsersinRoom(roomId, io)
+  socket.in(roomId).emit("updating client list", { userslist: userslist })
+
+  userslist.length === 0 && delete roomID_to_Code_Map[roomId]
+}
+
 //Whenever someone connects this gets executed
 io.on('connection', function (socket) {
   console.log('A user connected', socket.id)
 
-  socket.on("when a user joins", ({ roomId, username }) => {
+  socket.on("when a user joins", async ({ roomId, username }) => {
     console.log("username: ", username)
     socketID_to_Users_Map[socket.id] = username
     socket.join(roomId)
 
+    const userslist = await getUsersinRoom(roomId, io)
+
     // for other users, updating the client list
-    socket.in(roomId).emit("updating client list", { userslist: Object.values(socketID_to_Users_Map) })
+    socket.in(roomId).emit("updating client list", { userslist: userslist })
 
     // for this user, syncing the client list
-    io.to(socket.id).emit("updating client list", { userslist: Object.values(socketID_to_Users_Map) })
+    io.to(socket.id).emit("updating client list", { userslist: userslist })
 
     // send the latest code changes to this user when joined to existing room
     if (roomId in roomID_to_Code_Map) {
@@ -80,17 +103,20 @@ io.on('connection', function (socket) {
 
   socket.on("leave room", ({ roomId }) => {
     socket.leave(roomId)
-    socket.in(roomId).emit("member left", { username: socketID_to_Users_Map[socket.id] })
+    updateUserslistAndCodeMap(io, socket, roomId)
+  })
 
-    // update the user list
-    delete socketID_to_Users_Map[socket.id]
-    socket.in(roomId).emit("updating client list", { userslist: Object.values(socketID_to_Users_Map) })
+  socket.on("disconnecting", (reason) => {
+    socket.rooms.forEach(eachRoom => {
+      if (eachRoom in roomID_to_Code_Map) {
+        updateUserslistAndCodeMap(io, socket, eachRoom)
+      }
+    })
   })
 
   //Whenever someone disconnects this piece of code executed
   socket.on('disconnect', function () {
     console.log('A user disconnected')
-    delete socketID_to_Users_Map[socket.id]
   })
 })
 
