@@ -122,7 +122,7 @@ io.on('connection', function (socket) {
 
 //you can store your port number in a dotenv file, fetch it from there and store it in PORT
 //we have hard coded the port number here just for convenience
-const PORT = 5000
+const PORT = process.env.PORT || 5000
 
 server.listen(PORT, function () {
   console.log(`listening on port : ${PORT}`)

@@ -6,7 +6,7 @@ import { io } from "socket.io-client";
 import JoinRoom from './routes/joinRoom/JoinRoom';
 import Room from "./routes/room/Room";
 
-const socket = io.connect("http://localhost:5000")
+const socket = io.connect(process.env.WEB_SOCKET_URL || "http://localhost:5000")
 
 const router = createBrowserRouter([
     {
