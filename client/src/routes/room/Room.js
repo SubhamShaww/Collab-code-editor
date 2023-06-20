@@ -15,6 +15,9 @@ import "ace-builds/src-noconflict/mode-c_cpp";
 import "ace-builds/src-noconflict/mode-html";
 import "ace-builds/src-noconflict/mode-css";
 
+import "ace-builds/src-noconflict/keybinding-emacs";
+import "ace-builds/src-noconflict/keybinding-vim";
+
 import "ace-builds/src-noconflict/mode-snippets";
 import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/ext-language_tools";
@@ -27,8 +30,10 @@ export default function Room({ socket }) {
   const [fetchedUsers, setFetchedUsers] = useState(() => [])
   const [fetchedCode, setFetchedCode] = useState(() => "")
   const [language, setLanguage] = useState(() => "javascript")
+  const [codeKeybinding, setCodeKeybinding] = useState(() => undefined)
 
   const languagesAvailable = ["javascript", "java", "c_cpp", "python", "typescript", "golang", "yaml", "html"]
+  const codeKeybindingsAvailable = ["default", "emacs", "vim"]
 
   function onChange(newValue) {
     socket.emit("syncing the code", { socketId: socket.id, code: newValue })
@@ -92,6 +97,13 @@ export default function Room({ socket }) {
             </select>
           </div>
 
+          <div className="languageFieldWrapper">
+            <select className="languageField" name="codeKeybinding" id="codeKeybinding" value={codeKeybinding} onChange={(e) => {setCodeKeybinding(e.target.value === "default" ? undefined : e.target.value)}}>
+              {codeKeybindingsAvailable.map(eachKeybinding => (
+                <option key={eachKeybinding} value={eachKeybinding}>{eachKeybinding}</option>
+              ))}
+            </select>
+          </div>
 
           <p>Connected Users:</p>
           <div className="roomSidebarUsers">
@@ -114,6 +126,7 @@ export default function Room({ socket }) {
         placeholder="Write your code here."
         className="roomCodeEditor"
         mode={language}
+        keyboardHandler={codeKeybinding}
         theme="monokai"
         name="collabEditor"
         width="auto"
@@ -124,7 +137,7 @@ export default function Room({ socket }) {
         showPrintMargin={true}
         showGutter={true}
         highlightActiveLine={true}
-        enableLiveAutocompletion={true}
+        enableLiveAutocompletion={false}
         enableBasicAutocompletion={true}
         enableSnippets={true}
         wrapEnabled={true}
