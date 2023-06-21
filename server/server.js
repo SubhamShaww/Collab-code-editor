@@ -25,14 +25,14 @@ async function getUsersinRoom(roomId, io) {
   const socketList = await io.in(roomId).allSockets()
   const userslist = []
   socketList.forEach((each => {
-    (each in socketID_to_Users_Map) && userslist.push(socketID_to_Users_Map[each])
+    (each in socketID_to_Users_Map) && userslist.push(socketID_to_Users_Map[each].username)
   }))
 
   return userslist
 }
 
 async function updateUserslistAndCodeMap(io, socket, roomId) {
-  socket.in(roomId).emit("member left", { username: socketID_to_Users_Map[socket.id] })
+  socket.in(roomId).emit("member left", { username: socketID_to_Users_Map[socket.id].username })
 
   // update the user list
   delete socketID_to_Users_Map[socket.id]
@@ -48,7 +48,7 @@ io.on('connection', function (socket) {
 
   socket.on("when a user joins", async ({ roomId, username }) => {
     console.log("username: ", username)
-    socketID_to_Users_Map[socket.id] = username
+    socketID_to_Users_Map[socket.id] = { username }
     socket.join(roomId)
 
     const userslist = await getUsersinRoom(roomId, io)
@@ -82,8 +82,8 @@ io.on('connection', function (socket) {
   })
 
   // for user editing the code to reflect on his/her screen
-  socket.on("syncing the language", ({ socketId, languageUsed }) => {
-    io.to(socketId).emit("on language change", { languageUsed })
+  socket.on("syncing the language", ({ roomId }) => {
+    io.to(socket.id).emit("on language change", { languageUsed: roomID_to_Code_Map[roomId].languageUsed })
   })
 
   // for other users in room to view the changes
@@ -97,8 +97,12 @@ io.on('connection', function (socket) {
   })
 
   // for user editing the code to reflect on his/her screen
-  socket.on("syncing the code", ({ socketId, code }) => {
-    io.to(socketId).emit("on code change", { code })
+  socket.on("syncing the code", ({ roomId }) => {
+    io.to(socket.id).emit("on code change", { code: roomID_to_Code_Map[roomId].code })
+  })
+
+  socket.on("syncing the keyboard handler", ({ keyboardHandlerValue }) => {
+    io.to(socket.id).emit("on keyboard handler change", { keyboardHandlerValue })
   })
 
   socket.on("leave room", ({ roomId }) => {

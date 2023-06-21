@@ -18,7 +18,6 @@ import "ace-builds/src-noconflict/mode-css";
 import "ace-builds/src-noconflict/keybinding-emacs";
 import "ace-builds/src-noconflict/keybinding-vim";
 
-import "ace-builds/src-noconflict/mode-snippets";
 import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/ext-searchbox";
@@ -36,15 +35,21 @@ export default function Room({ socket }) {
   const codeKeybindingsAvailable = ["default", "emacs", "vim"]
 
   function onChange(newValue) {
-    socket.emit("syncing the code", { socketId: socket.id, code: newValue })
-
     socket.emit("on code change", { roomId, code: newValue })
   }
 
   function handleLanguageChange(e) {
-    socket.emit("syncing the language", { socketId: socket.id, languageUsed: e.target.value })
+    socket.emit("syncing the code", { roomId: roomId })
 
     socket.emit("on language change", { roomId, languageUsed: e.target.value })
+
+    socket.emit("syncing the language", { roomId: roomId })
+  }
+
+  function handleCodeKeybindingChange(e) {
+    socket.emit("syncing the code", { roomId: roomId })
+
+    socket.emit("syncing the keyboard handler", { keyboardHandlerValue: e.target.value })
   }
 
   function handleLeave(roomId) {
@@ -63,13 +68,19 @@ export default function Room({ socket }) {
 
   useEffect(() => {
     location.state && location.state.username ? socket.emit("when a user joins", { roomId, username: location.state.username }) : navigate("/", { replace: true })
+  }, [socket, location.state, roomId, navigate])
 
+  useEffect(() => {
     socket.on("updating client list", ({ userslist }) => {
       setFetchedUsers(userslist)
     })
 
     socket.on("on language change", ({ languageUsed }) => {
       setLanguage(languageUsed)
+    })
+
+    socket.on("on keyboard handler change", ({keyboardHandlerValue}) => {  
+      setCodeKeybinding(keyboardHandlerValue === "default" ? undefined : keyboardHandlerValue) 
     })
 
     socket.on("on code change", ({ code }) => {
@@ -83,7 +94,7 @@ export default function Room({ socket }) {
     socket.on("member left", ({ username }) => {
       toast(`${username} left`)
     })
-  }, [socket, location.state, roomId, navigate])
+  }, [socket])
 
   return location.state && location.state.username ? (
     <div className="room">
@@ -98,7 +109,7 @@ export default function Room({ socket }) {
           </div>
 
           <div className="languageFieldWrapper">
-            <select className="languageField" name="codeKeybinding" id="codeKeybinding" value={codeKeybinding} onChange={(e) => {setCodeKeybinding(e.target.value === "default" ? undefined : e.target.value)}}>
+            <select className="languageField" name="codeKeybinding" id="codeKeybinding" value={codeKeybinding} onChange={handleCodeKeybindingChange}>
               {codeKeybindingsAvailable.map(eachKeybinding => (
                 <option key={eachKeybinding} value={eachKeybinding}>{eachKeybinding}</option>
               ))}
@@ -137,9 +148,9 @@ export default function Room({ socket }) {
         showPrintMargin={true}
         showGutter={true}
         highlightActiveLine={true}
-        enableLiveAutocompletion={false}
-        enableBasicAutocompletion={true}
-        enableSnippets={true}
+        enableLiveAutocompletion={true}
+        enableBasicAutocompletion={false}
+        enableSnippets={false}
         wrapEnabled={true}
         editorProps={{
           $blockScrolling: true
