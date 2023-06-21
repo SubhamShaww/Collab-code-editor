@@ -83,7 +83,7 @@ io.on('connection', function (socket) {
 
   // for user editing the code to reflect on his/her screen
   socket.on("syncing the language", ({ roomId }) => {
-    io.to(socket.id).emit("on language change", { languageUsed: roomID_to_Code_Map[roomId].languageUsed })
+    (roomId in roomID_to_Code_Map) && io.to(socket.id).emit("on language change", { languageUsed: roomID_to_Code_Map[roomId].languageUsed })
   })
 
   // for other users in room to view the changes
@@ -98,7 +98,7 @@ io.on('connection', function (socket) {
 
   // for user editing the code to reflect on his/her screen
   socket.on("syncing the code", ({ roomId }) => {
-    io.to(socket.id).emit("on code change", { code: roomID_to_Code_Map[roomId].code })
+    (roomId in roomID_to_Code_Map) && io.to(socket.id).emit("on code change", { code: roomID_to_Code_Map[roomId].code })
   })
 
   socket.on("syncing the keyboard handler", ({ keyboardHandlerValue }) => {
