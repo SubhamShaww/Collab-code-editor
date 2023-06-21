@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, validate } from 'uuid';
 import { Toaster, toast } from 'react-hot-toast';
 import './JoinRoom.css'
 
@@ -11,7 +11,11 @@ export default function JoinRoom() {
 
     function handleRoomSubmit(e) {
         e.preventDefault()
-        roomId && username && navigate(`/room/${roomId}`, { state: { username } })
+        if (!validate(roomId)) {
+            toast.error("Incorrect room ID")
+            return
+        }
+        username && navigate(`/room/${roomId}`, { state: { username } })
     }
 
     function createRoomId(e) {
