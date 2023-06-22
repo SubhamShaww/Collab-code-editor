@@ -23,6 +23,7 @@
     background-color: #f0f0f0;
     border: none;
     outline: none;
+    text-transform: capitalize;
 }
 
 .roomCodeEditor {
@@ -30,28 +31,32 @@
 }
 
 .roomSidebarCopyBtn {
+    font-size: 75%;
     font-weight: bold;
     padding: 8px 15px;
     color: white;
     background-color: #ffdd00;
-    border: 2px solid #ffdd00;
+    border: 1px solid #ffdd00;
     outline: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: all 0.45s ease-in-out 0.05s;
 }
 .roomSidebarCopyBtn:hover {
-    color: #ffdd00;
+    color: black;
     background-color: white;
 }
 
 .roomSidebarBtn {
+    font-size: 75%;
     font-weight: bold;
     padding: 10px 15px;
     background-color: white;
-    border: 2px solid black;
+    border: 1px solid black;
     outline: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: all 0.45s ease-in-out 0.05s;
 }
 .roomSidebarBtn:hover {
     color: white;

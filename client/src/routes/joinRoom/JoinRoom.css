@@ -20,14 +20,16 @@
     padding: 8px 15px;
     color: white;
     background-color: #ffdd00;
-    border: 2px solid #ffdd00;
+    border: 1px solid #ffdd00;
     outline: none;
     border-radius: 25px;
+    font-size: 75%;
     font-weight: bold;
     cursor: pointer;
+    transition: all 0.45s ease-in-out 0.05s;
 }
 .joinBoxBtn:hover {
-    color: #ffdd00;
+    color: black;
     background-color: white;
 }
 
