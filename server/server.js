@@ -56,7 +56,7 @@ io.on('connection', function (socket) {
     // for other users, updating the client list
     socket.in(roomId).emit("updating client list", { userslist: userslist })
 
-    // for this user, syncing the client list
+    // for this user, updating the client list
     io.to(socket.id).emit("updating client list", { userslist: userslist })
 
     // send the latest code changes to this user when joined to existing room
@@ -72,8 +72,7 @@ io.on('connection', function (socket) {
   })
 
   // for other users in room to view the changes
-  socket.on("on language change", ({ roomId, languageUsed }) => {
-    socket.in(roomId).emit("on language change", { languageUsed })
+  socket.on("update language", ({ roomId, languageUsed }) => {
     if (roomId in roomID_to_Code_Map) {
       roomID_to_Code_Map[roomId]['languageUsed'] = languageUsed
     } else {
@@ -83,12 +82,14 @@ io.on('connection', function (socket) {
 
   // for user editing the code to reflect on his/her screen
   socket.on("syncing the language", ({ roomId }) => {
-    (roomId in roomID_to_Code_Map) && io.to(socket.id).emit("on language change", { languageUsed: roomID_to_Code_Map[roomId].languageUsed })
+    if (roomId in roomID_to_Code_Map) {
+      socket.in(roomId).emit("on language change", { languageUsed: roomID_to_Code_Map[roomId].languageUsed })
+      io.to(socket.id).emit("on language change", { languageUsed: roomID_to_Code_Map[roomId].languageUsed })
+    }
   })
 
   // for other users in room to view the changes
-  socket.on("on code change", ({ roomId, code }) => {
-    socket.in(roomId).emit("on code change", { code })
+  socket.on("update code", ({ roomId, code }) => {
     if (roomId in roomID_to_Code_Map) {
       roomID_to_Code_Map[roomId]['code'] = code
     } else {
@@ -98,11 +99,10 @@ io.on('connection', function (socket) {
 
   // for user editing the code to reflect on his/her screen
   socket.on("syncing the code", ({ roomId }) => {
-    (roomId in roomID_to_Code_Map) && io.to(socket.id).emit("on code change", { code: roomID_to_Code_Map[roomId].code })
-  })
-
-  socket.on("syncing the keyboard handler", ({ keyboardHandlerValue }) => {
-    io.to(socket.id).emit("on keyboard handler change", { keyboardHandlerValue })
+    if (roomId in roomID_to_Code_Map) {
+      socket.in(roomId).emit("on code change", { code: roomID_to_Code_Map[roomId].code })
+      io.to(socket.id).emit("on code change", { code: roomID_to_Code_Map[roomId].code })
+    }
   })
 
   socket.on("leave room", ({ roomId }) => {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AceEditor from "react-ace";
 import { Toaster, toast } from 'react-hot-toast';
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { generateColor } from "../../utils";
 import './Room.css'
 
@@ -23,7 +23,6 @@ import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/ext-searchbox";
 
 export default function Room({ socket }) {
-  const location = useLocation()
   const navigate = useNavigate()
   const { roomId } = useParams()
   const [fetchedUsers, setFetchedUsers] = useState(() => [])
@@ -35,26 +34,22 @@ export default function Room({ socket }) {
   const codeKeybindingsAvailable = ["default", "emacs", "vim"]
 
   function onChange(newValue) {
-    socket.emit("on code change", { roomId, code: newValue })
+    socket.emit("update code", { roomId, code: newValue })
+    socket.emit("syncing the code", { roomId: roomId })
   }
 
   function handleLanguageChange(e) {
-    socket.emit("syncing the code", { roomId: roomId })
-
-    socket.emit("on language change", { roomId, languageUsed: e.target.value })
-
+    socket.emit("update language", { roomId, languageUsed: e.target.value })
     socket.emit("syncing the language", { roomId: roomId })
   }
 
   function handleCodeKeybindingChange(e) {
-    socket.emit("syncing the code", { roomId: roomId })
-
-    socket.emit("syncing the keyboard handler", { keyboardHandlerValue: e.target.value })
+    setCodeKeybinding(e.target.value === "default" ? undefined : e.target.value) 
   }
 
-  function handleLeave(roomId) {
-    socket.emit("leave room", { roomId })
-    navigate('/', { replace: true })
+  function handleLeave() {
+    socket.disconnect()
+    !socket.connected && navigate('/', { replace: true, state: {} })
   }
 
   function copyToClipboard(text) {
@@ -67,20 +62,12 @@ export default function Room({ socket }) {
   }
 
   useEffect(() => {
-    location.state && location.state.username ? socket.emit("when a user joins", { roomId, username: location.state.username }) : navigate("/", { replace: true })
-  }, [socket, location.state, roomId, navigate])
-
-  useEffect(() => {
     socket.on("updating client list", ({ userslist }) => {
       setFetchedUsers(userslist)
     })
 
     socket.on("on language change", ({ languageUsed }) => {
       setLanguage(languageUsed)
-    })
-
-    socket.on("on keyboard handler change", ({keyboardHandlerValue}) => {  
-      setCodeKeybinding(keyboardHandlerValue === "default" ? undefined : keyboardHandlerValue) 
     })
 
     socket.on("on code change", ({ code }) => {
@@ -96,7 +83,7 @@ export default function Room({ socket }) {
     })
   }, [socket])
 
-  return location.state && location.state.username ? (
+  return (
     <div className="room">
       <div className="roomSidebar">
         <div className="roomSidebarUsersWrapper">
@@ -129,7 +116,7 @@ export default function Room({ socket }) {
 
         <button className="roomSidebarCopyBtn" onClick={() => { copyToClipboard(roomId) }}>Copy Room id</button>
         <button className="roomSidebarBtn" onClick={() => {
-          handleLeave(roomId)
+          handleLeave()
         }}>Leave</button>
       </div>
 
@@ -157,10 +144,6 @@ export default function Room({ socket }) {
         }}
       />
       <Toaster />
-    </div>
-  ) : (
-    <div className="room">
-      <h2>No username provided. Please use the form to join a room.</h2>
     </div>
   )
 }
