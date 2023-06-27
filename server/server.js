@@ -84,7 +84,6 @@ io.on('connection', function (socket) {
   socket.on("syncing the language", ({ roomId }) => {
     if (roomId in roomID_to_Code_Map) {
       socket.in(roomId).emit("on language change", { languageUsed: roomID_to_Code_Map[roomId].languageUsed })
-      io.to(socket.id).emit("on language change", { languageUsed: roomID_to_Code_Map[roomId].languageUsed })
     }
   })
 
@@ -101,7 +100,6 @@ io.on('connection', function (socket) {
   socket.on("syncing the code", ({ roomId }) => {
     if (roomId in roomID_to_Code_Map) {
       socket.in(roomId).emit("on code change", { code: roomID_to_Code_Map[roomId].code })
-      io.to(socket.id).emit("on code change", { code: roomID_to_Code_Map[roomId].code })
     }
   })
 

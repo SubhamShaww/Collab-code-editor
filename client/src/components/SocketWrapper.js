@@ -31,7 +31,7 @@ export default function SocketWrapper({ children }) {
             navigate("/", { replace: true })
             toast.error("No username provided")
         }
-        
+
         location.state && location.state.username ? socket.emit("when a user joins", { roomId, username: location.state.username }) : kickStrangerOut()
     }, [socket, location.state, roomId, navigate])
 

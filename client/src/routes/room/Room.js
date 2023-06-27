@@ -34,17 +34,19 @@ export default function Room({ socket }) {
   const codeKeybindingsAvailable = ["default", "emacs", "vim"]
 
   function onChange(newValue) {
+    setFetchedCode(newValue)
     socket.emit("update code", { roomId, code: newValue })
     socket.emit("syncing the code", { roomId: roomId })
   }
 
   function handleLanguageChange(e) {
+    setLanguage(e.target.value)
     socket.emit("update language", { roomId, languageUsed: e.target.value })
     socket.emit("syncing the language", { roomId: roomId })
   }
 
   function handleCodeKeybindingChange(e) {
-    setCodeKeybinding(e.target.value === "default" ? undefined : e.target.value) 
+    setCodeKeybinding(e.target.value === "default" ? undefined : e.target.value)
   }
 
   function handleLeave() {
@@ -82,6 +84,21 @@ export default function Room({ socket }) {
       toast(`${username} left`)
     })
   }, [socket])
+
+  useEffect(() => {
+    const backButtonEventListner = window.addEventListener("popstate", function (e) {
+      const eventStateObj = e.state
+      if (!('usr' in eventStateObj) || !('username' in eventStateObj.usr)) {
+        const leaveConfirmationResponse = this.confirm("Please confirm if you want to leave the room");
+        socket.disconnect()
+        !leaveConfirmationResponse && this.history.forward()
+      }
+    });
+
+    return () => {
+      window.removeEventListener("popstate", backButtonEventListner)
+    }
+  }, [socket, navigate])
 
   return (
     <div className="room">
@@ -139,6 +156,7 @@ export default function Room({ socket }) {
         enableBasicAutocompletion={false}
         enableSnippets={false}
         wrapEnabled={true}
+        tabSize={2}
         editorProps={{
           $blockScrolling: true
         }}
