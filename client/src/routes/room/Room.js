@@ -83,22 +83,18 @@ export default function Room({ socket }) {
     socket.on("member left", ({ username }) => {
       toast(`${username} left`)
     })
-  }, [socket])
 
-  useEffect(() => {
     const backButtonEventListner = window.addEventListener("popstate", function (e) {
       const eventStateObj = e.state
       if (!('usr' in eventStateObj) || !('username' in eventStateObj.usr)) {
-        const leaveConfirmationResponse = this.confirm("Please confirm if you want to leave the room");
         socket.disconnect()
-        !leaveConfirmationResponse && this.history.forward()
       }
     });
 
     return () => {
       window.removeEventListener("popstate", backButtonEventListner)
     }
-  }, [socket, navigate])
+  }, [socket])
 
   return (
     <div className="room">
