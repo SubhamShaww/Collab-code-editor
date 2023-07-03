@@ -13,6 +13,7 @@
 ### Development
 * cd client && npm start (on terminal 1)
 * cd server && npm run server (on terminal 2)
+* Development document: https://docs.google.com/document/d/1gjXxgH9DGwMUQQZSMpqzwCpN3zbNdG8Ua1ElxFBQg5w/edit?usp=sharing
 
 ### Production
 * first add the env variable value to platform used for deployment of client code.
